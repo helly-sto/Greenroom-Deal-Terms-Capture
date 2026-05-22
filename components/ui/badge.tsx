@@ -99,6 +99,36 @@ const dealStyles: Record<string, { bg: string; fg: string; ring: string }> = {
     fg: "text-rose-800",
     ring: "ring-rose-200/80",
   },
+  guarantee_vs_net: {
+    bg: "bg-amber-50",
+    fg: "text-amber-800",
+    ring: "ring-amber-200/80",
+  },
+  guarantee_vs_gross: {
+    bg: "bg-amber-50",
+    fg: "text-amber-800",
+    ring: "ring-amber-200/80",
+  },
+  percentage_only: {
+    bg: "bg-ink-50",
+    fg: "text-ink-700",
+    ring: "ring-ink-200/80",
+  },
+  door_deal: {
+    bg: "bg-rose-50",
+    fg: "text-rose-800",
+    ring: "ring-rose-200/80",
+  },
+  escalator: {
+    bg: "bg-sky-50",
+    fg: "text-sky-800",
+    ring: "ring-sky-200/80",
+  },
+  walkout_pot: {
+    bg: "bg-brand-50",
+    fg: "text-brand-800",
+    ring: "ring-brand-200/80",
+  },
 };
 
 const dealLabels: Record<string, string> = {
@@ -107,6 +137,12 @@ const dealLabels: Record<string, string> = {
   percentage_of_net: "% of net",
   vs: "Vs deal",
   door: "Door deal",
+  guarantee_vs_net: "Vs net",
+  guarantee_vs_gross: "Vs gross",
+  percentage_only: "% only",
+  door_deal: "Door deal",
+  escalator: "Escalator",
+  walkout_pot: "Walkout",
 };
 
 export function DealTypeBadge({

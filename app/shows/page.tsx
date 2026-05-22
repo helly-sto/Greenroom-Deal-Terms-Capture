@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { Plus } from "lucide-react";
 import { getAllShows } from "@/lib/queries";
 import {
   formatMoneyCompact,
@@ -5,6 +7,7 @@ import {
   formatShowMonth,
   relativeShowDate,
 } from "@/lib/format";
+import { Button } from "@/components/ui/button";
 import { ShowsList } from "./shows-list";
 import type { ShowRow } from "./shows-list";
 
@@ -59,23 +62,33 @@ export default async function ShowsPage() {
   return (
     <div className="px-12 py-10 max-w-7xl">
       <div className="mb-14">
-        <div className="eyebrow mb-3">
-          The Crescent · Nashville · 650 cap
+        <div className="flex items-start justify-between gap-6">
+          <div>
+            <div className="eyebrow mb-3">
+              The Crescent · Nashville · 650 cap
+            </div>
+            <h1
+              className="font-display text-[52px] font-medium text-ink-900 leading-[1.02]"
+              style={{ letterSpacing: "-0.025em", fontOpticalSizing: "auto" }}
+            >
+              Shows
+            </h1>
+            <p className="text-[14px] text-ink-500 mt-3 max-w-lg leading-relaxed">
+              Mariana&apos;s home view. {reversed.length} shows over 24 months.{" "}
+              {settledCount} settled
+              {disputedCount > 0 && (
+                <>, <span className="text-rose-700">{disputedCount} disputed</span></>
+              )}
+              .
+            </p>
+          </div>
+          <Link href="/shows/new" className="shrink-0 mt-2">
+            <Button variant="brand" size="lg">
+              <Plus className="h-4 w-4" />
+              New show
+            </Button>
+          </Link>
         </div>
-        <h1
-          className="font-display text-[52px] font-medium text-ink-900 leading-[1.02]"
-          style={{ letterSpacing: "-0.025em", fontOpticalSizing: "auto" }}
-        >
-          Shows
-        </h1>
-        <p className="text-[14px] text-ink-500 mt-3 max-w-lg leading-relaxed">
-          Mariana&apos;s home view. {reversed.length} shows over 24 months.{" "}
-          {settledCount} settled
-          {disputedCount > 0 && (
-            <>, <span className="text-rose-700">{disputedCount} disputed</span></>
-          )}
-          .
-        </p>
       </div>
 
       <div className="grid grid-cols-3 gap-px bg-ink-200/40 rounded-xl overflow-hidden mb-14">

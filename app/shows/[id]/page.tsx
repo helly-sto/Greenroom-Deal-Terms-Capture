@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/card";
 import { StatusBadge, DealTypeBadge, PlainBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DealTermsView } from "@/components/deal-terms-view";
+import { ShareWithAgent } from "@/components/share-with-agent";
 import { parseBonuses } from "@/lib/dealMath";
 import {
   formatMoney,
@@ -52,6 +54,7 @@ export default async function ShowDetailPage({
     agent,
     agency,
     deal,
+    dealTerms,
     settlement,
     ticketSales,
     expenses,
@@ -160,14 +163,41 @@ export default async function ShowDetailPage({
               <div>
                 <CardTitle>Deal terms</CardTitle>
                 <CardDescription>
-                  What was negotiated. Mariana enters this from the email
-                  thread with the agent.
+                  {dealTerms
+                    ? "Structured terms captured from the agent thread."
+                    : "What was negotiated. Mariana enters this from the email thread with the agent."}
                 </CardDescription>
               </div>
-              {deal && <DealTypeBadge type={deal.dealType} />}
+              <div className="flex items-center gap-2 shrink-0">
+                {!dealTerms && deal && <DealTypeBadge type={deal.dealType} />}
+                <ShareWithAgent showId={show.id} />
+              </div>
             </CardHeader>
             <CardContent className="space-y-5">
-              {deal ? (
+              {dealTerms ? (
+                <>
+                  <DealTermsView terms={dealTerms} showConfirmation />
+                  {bonuses.length > 0 && (
+                    <div className="text-[11px] text-ink-400 leading-snug">
+                      Bonuses also mirrored in{" "}
+                      <code className="font-mono text-[10px] bg-white/80 px-1 py-0.5 rounded ring-1 ring-ink-200/40">
+                        bonuses_json
+                      </code>{" "}
+                      for in-app settlement.
+                    </div>
+                  )}
+                  {dealTerms.rawConversation && (
+                    <details className="text-[12.5px] text-ink-700">
+                      <summary className="cursor-pointer text-ink-500 hover:text-ink-900 select-none">
+                        Original conversation
+                      </summary>
+                      <div className="mt-2 bg-canvas-soft rounded-lg p-4 ring-1 ring-ink-200/50 leading-relaxed whitespace-pre-wrap text-[12.5px]">
+                        {dealTerms.rawConversation}
+                      </div>
+                    </details>
+                  )}
+                </>
+              ) : deal ? (
                 <>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <Field

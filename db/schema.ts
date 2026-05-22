@@ -128,6 +128,58 @@ export const deals = sqliteTable("deals", {
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 });
 
+// -------- Deal terms confirmed (AI capture) --------
+
+/**
+ * Structured deal terms captured through an AI conversation with the
+ * booking agent. One row per confirmation attempt; drafts can be revised
+ * before status moves to sent or approved.
+ */
+export const dealTermsConfirmed = sqliteTable("deal_terms_confirmed", {
+  id: text("id").primaryKey(),
+  showId: text("show_id")
+    .notNull()
+    .references(() => shows.id),
+
+  dealType: text("deal_type", {
+    enum: [
+      "flat",
+      "guarantee_vs_net",
+      "guarantee_vs_gross",
+      "percentage_only",
+      "door_deal",
+      "escalator",
+      "walkout_pot",
+    ],
+  }),
+  guaranteeAmount: real("guarantee_amount"),
+  artistPercentage: real("artist_percentage"),
+  percentageBasis: text("percentage_basis", { enum: ["net", "gross"] }),
+  expenseCap: real("expense_cap"),
+  hospitalityCap: real("hospitality_cap"),
+  walkoutThreshold: real("walkout_threshold"),
+  walkoutType: text("walkout_type"),
+  tier1Percentage: real("tier_1_percentage"),
+  tier1Threshold: real("tier_1_threshold"),
+  tier2Percentage: real("tier_2_percentage"),
+  tier2Threshold: real("tier_2_threshold"),
+  bonus1Amount: real("bonus_1_amount"),
+  bonus1Trigger: text("bonus_1_trigger"),
+  bonus2Amount: real("bonus_2_amount"),
+  bonus2Trigger: text("bonus_2_trigger"),
+
+  rawConversation: text("raw_conversation"),
+  confirmedBy: text("confirmed_by"),
+  confirmedAt: integer("confirmed_at", { mode: "timestamp" }),
+
+  status: text("status", { enum: ["draft", "sent", "approved"] })
+    .notNull()
+    .default("draft"),
+
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
+
 // -------- Ticket sales --------
 
 export const ticketSales = sqliteTable("ticket_sales", {
@@ -290,6 +342,7 @@ export type Agent = typeof agents.$inferSelect;
 export type Artist = typeof artists.$inferSelect;
 export type Show = typeof shows.$inferSelect;
 export type Deal = typeof deals.$inferSelect;
+export type DealTermsConfirmed = typeof dealTermsConfirmed.$inferSelect;
 export type TicketSale = typeof ticketSales.$inferSelect;
 export type Comp = typeof comps.$inferSelect;
 export type Expense = typeof expenses.$inferSelect;

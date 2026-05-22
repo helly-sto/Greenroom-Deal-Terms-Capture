@@ -9,6 +9,7 @@ import {
   agents,
   agencies,
   deals,
+  dealTermsConfirmed,
   ticketSales,
   comps,
   expenses,
@@ -16,7 +17,7 @@ import {
   venues,
   type Recoup,
 } from "@/db/schema";
-import { desc, asc, eq, sql, lte } from "drizzle-orm";
+import { desc, asc, eq, sql, lte, or, inArray } from "drizzle-orm";
 
 function todayDateString(): string {
   const d = new Date();
@@ -38,7 +39,12 @@ export async function getAllShows() {
     .leftJoin(agents, eq(artists.agentId, agents.id))
     .leftJoin(deals, eq(deals.showId, shows.id))
     .leftJoin(settlements, eq(settlements.showId, shows.id))
-    .where(lte(shows.date, todayDateString()))
+    .where(
+      or(
+        lte(shows.date, todayDateString()),
+        inArray(shows.status, ["booked", "advanced"]),
+      ),
+    )
     .orderBy(asc(shows.date));
 }
 
@@ -52,6 +58,7 @@ export async function getShowById(id: string) {
       deal: deals,
       settlement: settlements,
       venue: venues,
+      dealTerms: dealTermsConfirmed,
     })
     .from(shows)
     .leftJoin(artists, eq(shows.artistId, artists.id))
@@ -60,6 +67,7 @@ export async function getShowById(id: string) {
     .leftJoin(deals, eq(deals.showId, shows.id))
     .leftJoin(settlements, eq(settlements.showId, shows.id))
     .leftJoin(venues, eq(shows.venueId, venues.id))
+    .leftJoin(dealTermsConfirmed, eq(dealTermsConfirmed.showId, shows.id))
     .where(eq(shows.id, id));
 
   if (rows.length === 0) return null;
@@ -96,6 +104,25 @@ export async function getShowById(id: string) {
     comps: showComps,
     recoups,
   };
+}
+
+/** Lightweight fetch for the public deal terms link. */
+export async function getShowDealTerms(id: string) {
+  const rows = await db
+    .select({
+      show: shows,
+      artist: artists,
+      venue: venues,
+      dealTerms: dealTermsConfirmed,
+    })
+    .from(shows)
+    .leftJoin(artists, eq(shows.artistId, artists.id))
+    .leftJoin(venues, eq(shows.venueId, venues.id))
+    .leftJoin(dealTermsConfirmed, eq(dealTermsConfirmed.showId, shows.id))
+    .where(eq(shows.id, id))
+    .limit(1);
+
+  return rows[0] ?? null;
 }
 
 export type ShowWithRelations = NonNullable<
