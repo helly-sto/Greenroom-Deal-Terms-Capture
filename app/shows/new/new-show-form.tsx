@@ -55,14 +55,30 @@ export function NewShowForm() {
   const [chatLoading, setChatLoading] = useState(false);
   const [conversationComplete, setConversationComplete] = useState(false);
 
+  // Mirror of `messages` that is always up to date when async callbacks fire.
+  // React state reads in async functions can be stale; ref reads cannot.
+  const messagesRef = useRef<ChatMessage[]>([]);
+
+  /** Authoritative writer for the conversation: updates state and ref together. */
+  function commitMessages(next: ChatMessage[]) {
+    messagesRef.current = next;
+    setMessages(next);
+  }
+
+  // Keep the ref in sync with state for any external code paths that
+  // happen to mutate `messages` (defensive — commitMessages is preferred).
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
   const [dealTerms, setDealTerms] = useState<DealTermsDraft | null>(null);
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (messages.length === 0) {
-      setMessages([
+    if (messagesRef.current.length === 0) {
+      commitMessages([
         {
           role: "assistant",
           content:
@@ -70,7 +86,9 @@ export function NewShowForm() {
         },
       ]);
     }
-  }, [messages.length]);
+    // Run once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -80,11 +98,14 @@ export function NewShowForm() {
     const text = chatInput.trim();
     if (!text || chatLoading) return;
 
+    // Read from the ref so we capture the freshest history even when this
+    // callback was created with a stale `messages` closure.
+    const prevMessages = messagesRef.current;
     const nextMessages: ChatMessage[] = [
-      ...messages,
+      ...prevMessages,
       { role: "user", content: text },
     ];
-    setMessages(nextMessages);
+    commitMessages(nextMessages);
     setChatInput("");
     setChatLoading(true);
     setError(null);
@@ -94,18 +115,19 @@ export function NewShowForm() {
       const res = await fetch("/api/deal-terms/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: nextMessages }),
+        // Always send the up-to-date conversation, sourced from the ref.
+        body: JSON.stringify({ messages: messagesRef.current }),
       });
       if (!res.ok) throw new Error("Chat request failed");
       const data = await res.json();
-      setMessages([
-        ...nextMessages,
+      commitMessages([
+        ...messagesRef.current,
         { role: "assistant", content: data.message },
       ]);
       setConversationComplete(!!data.complete);
     } catch {
       setError("Couldn't reach the deal terms assistant. Try again.");
-      setMessages(messages);
+      commitMessages(prevMessages);
     } finally {
       setChatLoading(false);
     }
@@ -118,7 +140,10 @@ export function NewShowForm() {
       const res = await fetch("/api/deal-terms/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages, action: "generate" }),
+        body: JSON.stringify({
+          messages: messagesRef.current,
+          action: "generate",
+        }),
       });
       if (!res.ok) throw new Error("Generate failed");
       const data = await res.json();
@@ -159,7 +184,7 @@ export function NewShowForm() {
           doorsTime: doorsTime || undefined,
           setTime: setTime || undefined,
           dealTerms,
-          messages,
+          messages: messagesRef.current,
         }),
       });
       const data = await res.json();
