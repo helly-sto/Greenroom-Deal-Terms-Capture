@@ -1,4 +1,3 @@
-<div align="center">
 
 ## Candidate Submission — Helly Stoyanova
 
@@ -21,6 +20,8 @@ This submission adds an AI-assisted deal terms capture flow to Greenroom, design
 
 ### Branch
 `helly/deal-terms-capture`
+
+<div align="center">
 
 # Greenroom
 
