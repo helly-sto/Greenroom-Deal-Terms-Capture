@@ -1,5 +1,27 @@
 <div align="center">
 
+## Candidate Submission — Helly Stoyanova
+
+### Feature: Deal Terms Capture
+
+This submission adds an AI-assisted deal terms capture flow to Greenroom, designed to replace the current manual, email-based deal entry process with a structured, agent-confirmed source of truth.
+
+### To test the feature
+
+1. Go to `/shows` and click **New Show**
+2. Fill in basic show details
+3. Type deal terms in the AI chat panel — for example: *"$5,000 guarantee vs 85% of net after expenses, expense cap $1,200, hospitality cap $400"*
+4. Answer the AI's clarifying questions
+5. Click **Generate Deal Terms**
+6. Review the structured draft, edit if needed, and click **Save Show**
+7. On the show page, click **Share with Agent** to get the public link
+8. Open the public link in a new tab — this is what the agent sees
+9. Enter a name and click **Confirm & Sign Off**
+10. Return to the show page and confirm the status updated to **Approved**
+
+### Branch
+`helly/deal-terms-capture`
+
 # Greenroom
 
 **Software for independent music venues.**
