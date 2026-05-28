@@ -21,6 +21,14 @@ This submission adds an AI-assisted deal terms capture flow to Greenroom, design
 ### Branch
 `helly/deal-terms-capture`
 
+### Environment Variables
+Before running the app, create a `.env.local` file in the root directory and add:
+
+ANTHROPIC_API_KEY=your-key-here
+
+An Anthropic API key is required to run the AI deal terms conversation. Get one free at console.anthropic.com.
+
+
 <div align="center">
 
 # Greenroom
